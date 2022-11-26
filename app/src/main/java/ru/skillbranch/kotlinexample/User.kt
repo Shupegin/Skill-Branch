@@ -1,9 +1,6 @@
 package ru.skillbranch.kotlinexample
 
-import android.annotation.SuppressLint
-import android.util.Log
 import androidx.annotation.VisibleForTesting
-import ru.skillbranch.kotlinexample.User.Factory.fullNameToPair
 import java.math.BigInteger
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -32,7 +29,6 @@ class User private constructor(
             field = value?.replace("""[^+\d]""".toRegex(), "")
         }
 
-
     private var _login: String? = null
     var login: String
         set(value) {
@@ -59,7 +55,6 @@ class User private constructor(
     }
 
     // For phone
-    @SuppressLint("RestrictedApi")
     constructor(
         firstName: String,
         lastName: String?,
@@ -73,14 +68,6 @@ class User private constructor(
         sendAccessCodeToUser(rawPhone, code)
     }
 
-    @SuppressLint("RestrictedApi")
-    fun newCode (){
-        val code = generateAccessCode()
-        passwordHash = encrypt(code)
-        println("Phone passwordHash is $passwordHash")
-        accessCode = code
-    }
-
     init {
         println("First init block, primary constructor was called")
 
@@ -88,7 +75,6 @@ class User private constructor(
         check(!email.isNullOrBlank() || !rawPhone.isNullOrBlank()) { "Email or phone must not be null or blank" }
 
         phone = rawPhone
-        println(phone)
         login = email ?: phone!!
 
         userInfo = """
@@ -107,7 +93,6 @@ class User private constructor(
         println("Checking passwordHash is $passwordHash")
     }
 
-    @SuppressLint("RestrictedApi")
     fun changePassword(oldPass: String, newPass: String) {
         if (checkPassword(oldPass)) {
             passwordHash = encrypt(newPass)
@@ -116,7 +101,7 @@ class User private constructor(
         } else throw IllegalArgumentException("The entered password does not match the current password")
     }
 
-    fun encrypt(password: String): String {
+    private fun encrypt(password: String): String {
         if (salt.isNullOrEmpty()) {
             salt = ByteArray(16).also { SecureRandom().nextBytes(it) }.toString()
         }
@@ -143,7 +128,7 @@ class User private constructor(
         }.toString()
     }
 
-    private fun sendAccessCodeToUser(phone: String, code: String) {
+    fun sendAccessCodeToUser(phone: String, code: String) {
         println("..... sending access code: $code on $phone")
     }
 
@@ -157,14 +142,7 @@ class User private constructor(
             val (firstName, lastName) = fullName.fullNameToPair()
 
             return when {
-                !phone.isNullOrBlank() ->
-                    if (phone.phoneVerification()) {
-                        User(firstName, lastName, phone)
-                    }else{
-                        throw IllegalArgumentException("A user with this phone already exists")
-                    }
-
-
+                !phone.isNullOrBlank() -> User(firstName, lastName, phone)
                 !email.isNullOrBlank() && !password.isNullOrBlank() -> User(
                     firstName,
                     lastName,
@@ -174,8 +152,6 @@ class User private constructor(
                 else -> throw IllegalArgumentException("Email or phone must not be null or blank")
             }
         }
-
-
 
         private fun String.fullNameToPair(): Pair<String, String?> =
             this.split(" ")
@@ -190,32 +166,5 @@ class User private constructor(
                         )
                     }
                 }
-
-
-            private fun String.phoneVerification(): Boolean {
-                var phone = this.removeSymbol()
-                println(phone)
-                if (phone.first().toString() == "+"){
-                    if (phone.codePointCount(1, phone.length) == 11){
-                        return true
-
-                    }else{
-                        throw IllegalArgumentException(
-                            "Enter a valid phone number starting with a + and containing 11 digits " +
-                                    "result: ${this@phoneVerification}")
-                    }
-
-                }else {
-                    throw IllegalArgumentException(
-                        "Enter a valid phone number starting with a + and containing 11 digits " +
-                                "result: ${this@phoneVerification}"
-                    )
-                }
-            }
-
-            private fun String.removeSymbol() : String {
-                return this.replace("""[^+\d]""".toRegex(), "")
-
-        }
     }
 }
