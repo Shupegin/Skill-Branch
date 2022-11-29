@@ -16,8 +16,23 @@ object UserHolder {
             .also { user ->
                 if (map[user.login] == null) {
                     map[user.login] = user
-                }else { throw IllegalArgumentException("Email or phone must not be null or blank")
+                }else { throw IllegalArgumentException("Email or phone have a blank")
                 }
+            }
+    }
+
+
+    fun registerUserByPhone(
+        fullName : String,
+        rawPhone : String
+    ) : User {
+        return User.makeUser(fullName, phone = rawPhone)
+            .also { user ->
+               if(map[user.login] == null){
+                   map[user.login] = user
+               }else{
+                   throw IllegalArgumentException("Email or phone must not be null or blank")
+               }
             }
     }
 
@@ -46,13 +61,7 @@ fun loginUser (login : String, password: String) : String?{
 
     }
 
-    fun registerUserByPhone(
-        fullName : String,
-        rawPhone : String
-    ) : User {
-        return User.makeUser(fullName, phone = rawPhone)
-            .also { user -> map[user.login] = user }
-    }
+
 
     @VisibleForTesting(otherwise = VisibleForTesting.NONE)
     fun clearHolder(){

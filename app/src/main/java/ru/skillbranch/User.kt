@@ -165,12 +165,8 @@ class User private constructor(
                     }
 
 
-                !email.isNullOrBlank() && !password.isNullOrBlank() -> User(
-                    firstName,
-                    lastName,
-                    email,
-                    password
-                )
+                !email.isNullOrBlank() && !password.isNullOrBlank() ->
+                    User(firstName, lastName, email, password)
                 else -> throw IllegalArgumentException("Email or phone must not be null or blank")
             }
         }
