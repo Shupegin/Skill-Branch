@@ -1,7 +1,11 @@
 package ru.skillbranch.kotlinexample
 
 import android.annotation.SuppressLint
+import android.util.Patterns
 import androidx.annotation.VisibleForTesting
+import java.util.regex.Matcher
+import java.util.regex.Pattern
+import kotlin.math.log
 
 
 object UserHolder {
@@ -38,13 +42,33 @@ object UserHolder {
 
 @SuppressLint("SuspiciousIndentation")
 fun loginUser (login : String, password: String) : String?{
-    val _login = login.removeSymbol()
-
-        return map[_login.trim()]?.run {
+    val email = isEmailValid_1(login)
+    return if (email){
+        map[login]?.run {
             println(this.userInfo)
             if(checkPassword(password)) this.userInfo
             else null
         }
+
+    }else{
+        val _login = login.removeSymbol()
+        map[_login]?.run {
+            println(this.userInfo)
+            if(checkPassword(password)) this.userInfo
+            else null
+        }
+    }
+
+
+
+
+    }
+
+    fun isEmailValid_1(email: String?): Boolean {
+        val expression = "^[\\w\\.-]+@([\\w\\-]+\\.)+[A-Z]{2,4}$"
+        val pattern: Pattern = Pattern.compile(expression, Pattern.CASE_INSENSITIVE)
+        val matcher: Matcher = pattern.matcher(email)
+        return matcher.matches()
     }
 
     @SuppressLint("RestrictedApi")
@@ -57,9 +81,13 @@ fun loginUser (login : String, password: String) : String?{
     }
 
     private fun String.removeSymbol() : String {
-        return this.replace("""[^+\d]""".toRegex(), "")
+
+          return  this.replace("""[^+\d]""".toRegex(), "")
 
     }
+
+
+
 
 
 
